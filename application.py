@@ -59,3 +59,6 @@ def validate():
         result=jsonify({'msg':str(e)})
         result.status_code=500
         return result
+
+if __name__ == '__main__':
+    app.run()
