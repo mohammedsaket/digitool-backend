@@ -147,7 +147,6 @@ def postOrderList():
         ID = jsonData['ID']
         del jsonData['ID']
         new_dict = {"$set":jsonData}
-        print(new_dict)
         CustomerCollection.update_one({"ID":ID},new_dict)
         result = jsonify({"msg":'Order Data Updated'})
         result.status_code = 200
