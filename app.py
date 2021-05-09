@@ -14,6 +14,7 @@ client = pymongo.MongoClient("mongodb+srv://test:test@cluster0.hdcch.mongodb.net
 db = client.get_database('digitool')
 ListCollection = db.ListData
 LoginCollection = db.LoginData
+CustomerCollection = db.customerData
 @app.route('/')
 def welcome():
     result=jsonify({'msg':"Welcome"})
@@ -36,8 +37,6 @@ def data():
 @app.route('/validate',methods=['POST'])
 def validate():
     try:
-        
-        
         _json=request.json
         email=_json['username']
         password=_json['password']
@@ -55,6 +54,106 @@ def validate():
                 result = jsonify({"msg":'Login Failed'})
                 result.status_code = 403
                 return result
+    except Exception as e:
+        result=jsonify({'msg':str(e)})
+        result.status_code=500
+        return result
+
+
+############## Customer List ####################
+
+@app.route('/customerList')
+def CustomerCollectionfunc():
+    l = []
+    cursor = CustomerCollection.find()
+    for record in cursor:
+    
+        l.append(dumps(record))
+   
+    result=jsonify(l)
+    result.status_code=200
+    return jsonify(l)
+
+
+@app.route('/postCustomerList',methods=['POST'])
+def postCustomerList():
+    try:
+        jsonData=request.json
+        CustomerCollection.insert_one(jsonData)
+        result = jsonify({"msg":'Data Added'})
+        result.status_code = 200
+        return result
+
+            
+    except Exception as e:
+        result=jsonify({'msg':str(e)})
+        result.status_code=500
+        return result
+
+@app.route('/updateCustomerList',methods=['POST'])
+def updateCustomerList():
+    try:
+        jsonData=request.json
+        ID = jsonData['ID']
+        del jsonData['ID']
+        new_dict = {"$set":jsonData}
+        CustomerCollection.update_one({"ID":ID},new_dict)
+        result = jsonify({"msg":'Data Updated'})
+        result.status_code = 200
+        return result
+
+            
+    except Exception as e:
+        result=jsonify({'msg':str(e)})
+        result.status_code=500
+        return result
+
+@app.route('/deleteCustomerList',methods=['POST'])
+def deleteCustomerList():
+    try:
+        jsonData=request.json
+        ID = jsonData['ID']
+        CustomerCollection.delete_one({"ID":ID})
+        result = jsonify({"msg":'Data Deleted'})
+        result.status_code = 200
+        return result
+
+            
+    except Exception as e:
+        result=jsonify({'msg':str(e)})
+        result.status_code=500
+        return result
+
+############## Order List ####################
+
+@app.route('/orderList',methods=['POST'])
+def orderList():
+    jsonData=request.json
+    ID = jsonData['ID']
+    l = []
+    cursor = CustomerCollection.find({"ID":ID})
+    for record in cursor:
+    
+        l.append(dumps(record))
+   
+    result=jsonify(l)
+    result.status_code=200
+    return jsonify(l)
+## Can use this for Post,Update,Delete
+@app.route('/postOrderList',methods=['POST'])
+def postOrderList():
+    try:
+        jsonData=request.json
+        ID = jsonData['ID']
+        del jsonData['ID']
+        new_dict = {"$set":jsonData}
+        print(new_dict)
+        CustomerCollection.update_one({"ID":ID},new_dict)
+        result = jsonify({"msg":'Order Data Updated'})
+        result.status_code = 200
+        return result
+
+            
     except Exception as e:
         result=jsonify({'msg':str(e)})
         result.status_code=500
